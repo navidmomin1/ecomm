@@ -2,7 +2,7 @@
 
 1. MongoDB
 2. nodejs
-3. elasticsearch (check whether open my shared postman collection and run to check whether postman is running, response should have this -> "tagline": "You Know, for Search")
+3. elasticsearch (open my shared postman collection and run to check whether elasticsearch is running, response should have this -> "tagline": "You Know, for Search")
 4. postman
 
 I am sharing postman collection, which is ready to use.
