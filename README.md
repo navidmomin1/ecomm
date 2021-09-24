@@ -24,3 +24,5 @@ I am sharing postman collection, which is ready to use.
 1. if you get not authorise error which means you are not authorise to perform the operation, login again with appropriate user whose role should have access to perform the desired operations. for example only admin user can add products.
 2. validity of token is 1 day for simplicity reasons
 3. There are more strong authentication implementations using access, id and refresh token but simple bearer token is for simplicity
+4. usually we dont send/checkin node_modules but i did it for simplicity reasons
+5. max rows in csv that will be consumed and inserted is 100 (upper boundary check)

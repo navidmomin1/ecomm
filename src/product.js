@@ -13,7 +13,6 @@ import { exit } from "process";
 import { getEmail } from "./utils.js";
 import { Client } from "@elastic/elasticsearch";
 
-// const parser = csv({ headers: true });
 const upload = multer({ dest: "tmp/csv/" });
 const connUri = "mongodb://localhost:27017/grocery";
 
@@ -61,18 +60,29 @@ function review(req, res, next) {
       reviewDocument.review = review;
       reviewDocument.email = getEmail(req, res, next);
       reviewDocument.timestamp = new Date().toISOString();
-      console.log(reviewDocument.email);
-      console.log(reviewDocument.timestamp);
-      reviewDocument.save((err, reviewDocument) => {
-        if (!err) {
-          result.status = status;
-          result.result = reviewDocument;
+      reviewSchema.findOne({ barcode }, (err, reviewSchema) => {
+        if (!err && reviewSchema) {
+          console.log("product found");
+          console.log(reviewDocument.email);
+          console.log(reviewDocument.timestamp);
+          reviewDocument.save((err, reviewDocument) => {
+            if (!err) {
+              result.status = status;
+              result.result = reviewDocument;
+            } else {
+              status = 500;
+              result.status = status;
+              result.error = err;
+            }
+            res.status(status).send(result);
+          });
         } else {
-          status = 500;
+          console.log("no product found");
+          status = 404;
           result.status = status;
-          result.error = err;
+          result.error = "Product not found";
+          res.status(status).send(result);
         }
-        res.status(status).send(result);
       });
     } else {
       status = 500;
