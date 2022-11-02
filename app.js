@@ -1,49 +1,58 @@
 import dotenv from "dotenv";
 dotenv.config();
 import express from "express";
-import registration from "./src/user.js";
-import { index, products, review, search } from "./src/product.js";
-import login from "./src/login.js";
+import fetch from "node-fetch";
 import {
-  authentication,
-  isAdmin,
-  isClient,
-} from "./src/middleware/authentication.js";
-import multer from "multer";
-const upload = multer({ dest: "tmp/csv/" });
-
+  disableProductAvailability,
+  index,
+  search,
+  createStore,
+} from "./src/product.js";
+import { ApolloServer, gql } from "apollo-server-express";
 const app = express();
 
 const port = 4800;
+const baseURL = `localhost:4800`;
+const server = new ApolloServer({
+  typeDefs: gql`
+    type Query {
+      products: [Products]
+    }
+    type Products {
+      result: String!
+      status: String!
+    }
+  `,
+  resolvers: {
+    Query: {
+      products: () => {
+        return fetch(`${baseURL}/products/availability/disable`).then((res) =>
+          res.json()
+        );
+      },
+    },
+  },
+});
+
+await server.start();
+server.applyMiddleware({ app });
 
 app.use(express.json({ extended: false }));
-
-app.post("/login", (req, res) => {
-  login(req, res);
-});
-
-app.post("/user/registration", (req, res) => {
-  registration(req, res);
-});
 
 app.post("/products/index", (req, res) => {
   index(req, res);
 });
 
-app.post(
-  "/products",
-  [authentication, isAdmin, upload.single("file")],
-  (req, res, next) => {
-    products(req, res, next);
-  }
-);
-
-app.post("/products/review", [authentication, isClient], (req, res, next) => {
-  review(req, res, next);
+app.get("/products/search", (req, res, next) => {
+  search(req, res, next);
 });
 
-app.post("/products/search", [authentication, isClient], (req, res, next) => {
-  search(req, res, next);
+app.put("/products/availability/disable", (req, res, next) => {
+  disableProductAvailability(req, res, next);
+});
+
+app.post("/stores", (req, res, next) => {
+  createStore(req, res, next);
 });
 
 app.listen(port, (err) => {
